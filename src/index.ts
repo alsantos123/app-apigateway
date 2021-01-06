@@ -1,7 +1,8 @@
 import * as util from "util";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import Redis from "./Redis";
 
+import Redis from "./Redis";
+import Log from "./Log";
 interface IGet {
     ok: boolean,
     data: null|string,
@@ -25,16 +26,21 @@ export const handler = async ( event: APIGatewayProxyEvent ): Promise<APIGateway
 
     try
     {
-        const key = "teste";
-        const redis = new Redis();
+        // REDIS
+        // const key = "teste";
+        // const redis = new Redis();
 
-        await redis.conectar();
+        // await redis.conectar();
 
-        await redis.set(key, "alicia");
-        const str = await redis.get(key+2);
+        // await redis.set(key, "alicia");
+        // const str = await redis.get(key+2);
 
-        ret.data = str;
-        console.debug(str);
+        // ret.data = str;
+        // console.debug(str);
+
+        // LOGGROUP
+        // const log = new Log();
+        // await log.erro("teste");
     }
     catch(e)
     {
