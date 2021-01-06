@@ -2,7 +2,8 @@ import * as util from "util";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 import Redis from "./Redis";
-import Log from "./Log";
+import Log, { LogTipo } from "./Log";
+import API from "./API";
 interface IGet {
     ok: boolean,
     data: null|string,
@@ -40,16 +41,31 @@ export const handler = async ( event: APIGatewayProxyEvent ): Promise<APIGateway
 
         // LOGGROUP
         // const log = new Log();
-        // await log.erro("teste");
+        // await log.log("teste 22", LogTipo.ERRO);
+
+        // LOG
+        const a = new API();
+        const res = await a.get("https://asantos2.me") ;
+        ret.data = inspect(res);
+        // console.debug(ret.data);
     }
     catch(e)
     {
-        console.error("index.ts", e);
         ret.ok = false;
-        ret.erro = util.inspect(e, true, 10, true);
+        ret.erro = e;
+        
+        console.error("index.ts", inspect(e));
+        
+        const log = new Log();
+        await log.log(ret.erro as string, LogTipo.ERRO);
     }
 
     httpResponse.body = JSON.stringify(ret);
 
     return httpResponse;
+}
+
+function inspect(obj: any)
+{
+    return util.inspect(obj, true, 10, true);
 }

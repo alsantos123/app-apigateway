@@ -3,61 +3,73 @@ import appConfig from "./app-config";
 import * as AWS from 'aws-sdk';
 import { InputLogEvent, Tags } from "aws-sdk/clients/cloudwatchlogs";
 
-enum enumStreams {
-    INFO = "INFO",
+export enum LogTipo {
+    INFO  = "INFO",
     DEBUG = "DEBUG",
-    ERRO = "ERRO"
+    ERRO  = "ERRO"
 }
 
 export default class Log
 {
     private cw: AWS.CloudWatchLogs;
+    private setup = false;
     
     constructor() 
     {
         this.cw = new AWS.CloudWatchLogs({region: appConfig.Loggroup.region});
     }
 
-    public async erro(msg: string)
+    public async log(msg: string, tipo: LogTipo)
     {
         await this._setup();
         
-        await this._log(enumStreams.ERRO, msg);
+        await this._log(msg, tipo);
     }
 
     private async _setup()
     {
-        await await this.cw.createLogGroup({
+        if(this.setup) return true;
+        this.setup = true;
+
+        try
+        {
+            await this.cw.createLogGroup({
 				logGroupName: appConfig.Loggroup.nome,
 				tags: {
 					"Descricao": appConfig.Loggroup.descricao
 				} as Tags
 			}).promise();
 
-        await this.cw.putRetentionPolicy({
-            logGroupName: appConfig.Loggroup.nome,
-            retentionInDays: 90
-        }).promise();
+            await this.cw.putRetentionPolicy({
+                logGroupName: appConfig.Loggroup.nome,
+                retentionInDays: 90
+            }).promise();
 
-        await this.cw.createLogStream({
-            logGroupName: appConfig.Loggroup.nome,
-            logStreamName: enumStreams.INFO
-        }).promise();
+            await this.cw.createLogStream({
+                logGroupName: appConfig.Loggroup.nome,
+                logStreamName: LogTipo.INFO
+            }).promise();
 
-        await this.cw.createLogStream({
-            logGroupName: appConfig.Loggroup.nome,
-            logStreamName: enumStreams.DEBUG
-        }).promise();
+            await this.cw.createLogStream({
+                logGroupName: appConfig.Loggroup.nome,
+                logStreamName: LogTipo.DEBUG
+            }).promise();
 
-        await this.cw.createLogStream({
-            logGroupName: appConfig.Loggroup.nome,
-            logStreamName: enumStreams.ERRO
-        }).promise();
+            await this.cw.createLogStream({
+                logGroupName: appConfig.Loggroup.nome,
+                logStreamName: LogTipo.ERRO
+            }).promise();
+
+            return true;
+        }
+        catch(e)
+        {
+            return false;
+        }
     }
 
-    private async _log(stream: enumStreams, msg: string)
+    private async _log(msg: string, stream: LogTipo)
     {
-        /// Loga o evento
 		const evento = {
 			timestamp: new Date().getTime(),
 			message: msg
@@ -79,15 +91,12 @@ export default class Log
 				logStreamName: stream,
 				logEvents: [evento],
 				sequenceToken: strSeqToken
-			}).promise();
-
+            }).promise();
 		}
 		catch(e) 
 		{
 			if(resPut && resPut.nextSequenceToken)
 			{
-				console.debug("resPut:", resPut);
-
 				try {
 					resPut = await this.cw.putLogEvents({
 						logGroupName: appConfig.Loggroup.nome,

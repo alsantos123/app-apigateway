@@ -18,7 +18,7 @@
 
     "log": "./scripts/log.sh $npm_package_config_log_group",
     "log-clear": "./scripts/log_clear.sh $npm_package_config_log_group",
-
+    
     "zip": "npm run compile && ./scripts/zip.sh",
     "unzip": "unzip deploy.zip -d deploy",
     "deploy": "npm run zip && ./scripts/deploy.sh $npm_package_config_lambda"
@@ -28,9 +28,11 @@
   "license": "ISC",
   "dependencies": {
     "@types/aws-lambda": "^8.10.70",
+    "@types/axios": "^0.14.0",
     "@types/node": "^14.14.20",
     "@types/redis": "^2.8.28",
     "aws-sdk": "^2.822.0",
+    "axios": "^0.21.1",
     "redis": "^3.0.2",
     "typescript": "^4.1.3"
   }
