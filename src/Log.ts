@@ -16,13 +16,12 @@ export default class Log
     
     constructor() 
     {
-        this.cw = new AWS.CloudWatchLogs({region: appConfig.Loggroup.region});
+        this.cw = new AWS.CloudWatchLogs({region: appConfig.Loggroup.region, maxRetries: 2, httpOptions: {timeout: 5, connectTimeout: 10}});
     }
 
     public async log(msg: string, tipo: LogTipo)
     {
         await this._setup();
-        
         await this._log(msg, tipo);
     }
 
@@ -38,7 +37,7 @@ export default class Log
 				tags: {
 					"Descricao": appConfig.Loggroup.descricao
 				} as Tags
-			}).promise();
+            }).promise();
 
             await this.cw.putRetentionPolicy({
                 logGroupName: appConfig.Loggroup.nome,
@@ -59,16 +58,17 @@ export default class Log
                 logGroupName: appConfig.Loggroup.nome,
                 logStreamName: LogTipo.ERRO
             }).promise();
-
-            return true;
         }
         catch(e)
         {
+            console.error(e);
             return false;
         }
+
+        return true;
     }
 
-    private async _log(msg: string, stream: LogTipo)
+    private async _log(msg: string, tipo: LogTipo)
     {
 		const evento = {
 			timestamp: new Date().getTime(),
@@ -80,15 +80,15 @@ export default class Log
 		try
 		{
 			const resDesc = await this.cw.describeLogStreams({
-				logGroupName: appConfig.Loggroup.nome,
-				logStreamNamePrefix: stream
+                logGroupName: appConfig.Loggroup.nome,
+                logStreamNamePrefix: tipo
 			}).promise();
 
 			const strSeqToken = resDesc.logStreams?.length ? resDesc.logStreams[0].uploadSequenceToken : "";
 
 			resPut = await this.cw.putLogEvents({
 				logGroupName: appConfig.Loggroup.nome,
-				logStreamName: stream,
+				logStreamName: tipo,
 				logEvents: [evento],
 				sequenceToken: strSeqToken
             }).promise();
@@ -100,7 +100,7 @@ export default class Log
 				try {
 					resPut = await this.cw.putLogEvents({
 						logGroupName: appConfig.Loggroup.nome,
-						logStreamName: stream,
+						logStreamName: tipo,
 						logEvents: [evento],
 						sequenceToken: resPut.nextSequenceToken
 					}).promise();

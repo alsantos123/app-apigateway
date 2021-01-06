@@ -2,7 +2,7 @@ import * as util from "util";
 import axios, {AxiosError} from "axios";
 import Log, {LogTipo} from "./Log";
 
-const AXIOS_TIMEOUT = 15 * 1000;
+const AXIOS_TIMEOUT = 5 * 1000;
 
 export default class API
 {

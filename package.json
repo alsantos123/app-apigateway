@@ -21,7 +21,7 @@
     
     "zip": "npm run compile && ./scripts/zip.sh",
     "unzip": "unzip deploy.zip -d deploy",
-    "deploy": "npm run zip && ./scripts/deploy.sh $npm_package_config_lambda"
+    "deploy": "npm run zip && ./scripts/deploy.sh $npm_package_config_lambda $npm_package_config_log_group"
   },
   "keywords": [],
   "author": "",
