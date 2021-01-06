@@ -1,0 +1,37 @@
+{
+  "name": "lambda-redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "config": {
+    "lambda": "arn:aws:lambda:us-east-1:921837494525:function:redis",
+    "log-group": "/aws/lambda/redis"
+  },
+  "scripts": {
+    "test": "./scripts/teste.sh $npm_package_config_lambda",
+    "test-local": "node -e \"(async () => { (console.log( await (require('./dist/index')).handler({}) ))})();\"",
+
+    "clear": "./scripts/clear.sh",
+    "compile": "npm run clear && tsc",
+    "validate": "npm run clear && tsc --noEmit",
+    "watch": "tsc --watch",
+
+    "log": "./scripts/log.sh $npm_package_config_log_group",
+    "log-clear": "./scripts/log_clear.sh $npm_package_config_log_group",
+
+    "zip": "npm run compile && ./scripts/zip.sh",
+    "unzip": "unzip deploy.zip -d deploy",
+    "deploy": "npm run zip && ./scripts/deploy.sh $npm_package_config_lambda"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.70",
+    "@types/node": "^14.14.20",
+    "@types/redis": "^2.8.28",
+    "aws-sdk": "^2.822.0",
+    "redis": "^3.0.2",
+    "typescript": "^4.1.3"
+  }
+}

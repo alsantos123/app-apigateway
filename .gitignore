@@ -1,0 +1,5 @@
+node_modules
+dist
+last_output.json
+package-lock.json
+.env
