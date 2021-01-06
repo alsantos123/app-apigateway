@@ -43,7 +43,7 @@ export const handler = async ( event: APIGatewayProxyEvent ): Promise<APIGateway
         // const log = new Log();
         // await log.log("teste 22", LogTipo.ERRO);
 
-        // LOG
+        // API
         const a = new API();
         const res = await a.get("https://asantos2.me") ;
         ret.data = inspect(res);
